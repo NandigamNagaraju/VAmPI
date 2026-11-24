@@ -29,16 +29,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Semgrep - FAIL on ERROR severity
-        run: semgrep scan --config p/python --config p/flask --exclude .venv --exclude docs --severity ERROR --error
+        run: semgrep scan --config p/python --config p/flask --exclude .venv --exclude docs --severity ERROR --error --json-output=semgrep.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: semgrep-report, path: semgrep.json }
 
   secrets-gitleaks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - uses: gitleaks/gitleaks-action@v2  
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install gitleaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar -xz gitleaks
+      - name: Gitleaks - FAIL on any secret
+        run: ./gitleaks detect --source . --redact --report-format json --report-path gitleaks.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: gitleaks-report, path: gitleaks.json }
 
   custom-security-tests:
     runs-on: ubuntu-latest
