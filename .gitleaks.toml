@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Scanner reports contain the strings they flagged, so skip them"
+paths = ['''docs/raw-reports/.*''']
