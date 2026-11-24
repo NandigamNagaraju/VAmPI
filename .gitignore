@@ -98,3 +98,7 @@ venv.bak/
 
 .venv/
 
+
+database/database.db
+.venv/
+
