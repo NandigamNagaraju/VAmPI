@@ -37,6 +37,7 @@ jobs:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - uses: gitleaks/gitleaks-action@v2  
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   custom-security-tests:
@@ -47,7 +48,7 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install -r requirements.txt pytest
       - name: Business-logic / authorisation tests (hardened mode)
-        run: pytest tests -q
+        run: pytest -m pytest tests -q
 
   sca-pip-audit:
     runs-on: ubuntu-latest
