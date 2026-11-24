@@ -1,0 +1,63 @@
+name: Security Pipeline
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  sast-bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install bandit
+      - name: Bandit - WARN on medium+ (report only)
+        run: bandit -r . -x ./.venv,./tests,./docs -ll -f json -o bandit.json || true
+      - name: Bandit - FAIL on HIGH severity
+        run: bandit -r . -x ./.venv,./tests,./docs -lll
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: bandit-report, path: bandit.json }
+
+  sast-semgrep:
+    runs-on: ubuntu-latest
+    container: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep - FAIL on ERROR severity
+        run: semgrep scan --config p/python --config p/flask --exclude .venv --exclude docs --severity ERROR --error
+
+  secrets-gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  custom-security-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt pytest
+      - name: Business-logic / authorisation tests (hardened mode)
+        run: pytest tests -q
+
+  sca-pip-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install pip-audit
+      - name: pip-audit - WARN (baseline has 36 known CVEs in pinned deps)
+        run: pip-audit -r requirements.txt -f json -o pip-audit.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: pip-audit-report, path: pip-audit.json }
