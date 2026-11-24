@@ -1,0 +1,23 @@
+[
+ {
+  "RuleID": "jwt",
+  "Description": "Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.",
+  "StartLine": 181,
+  "EndLine": 181,
+  "StartColumn": 33,
+  "EndColumn": 184,
+  "Match": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NzAxNjA2MTcsImlhdCI6MTY3MDE2MDU1Nywic3ViIjoiSm9obi5Eb2UifQ.n17N4AxTbL4_z65-NR46meoytauPDjImUxrLiUMSTQw'",
+  "Secret": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NzAxNjA2MTcsImlhdCI6MTY3MDE2MDU1Nywic3ViIjoiSm9obi5Eb2UifQ.n17N4AxTbL4_z65-NR46meoytauPDjImUxrLiUMSTQw",
+  "File": "openapi_specs/openapi3.yml",
+  "SymlinkFile": "",
+  "Commit": "c300e2bc404937458308545ec1ea944972f2e865",
+  "Link": "https://github.com/NandigamNagaraju/VAmPI/blob/c300e2bc404937458308545ec1ea944972f2e865/openapi_specs/openapi3.yml#L181",
+  "Entropy": 5.4544487,
+  "Author": "Mathew Jose Mammoottil",
+  "Email": "mathew.jose@traceable.ai",
+  "Date": "2023-04-05T03:33:48Z",
+  "Message": "added examples for openapi spec",
+  "Tags": [],
+  "Fingerprint": "c300e2bc404937458308545ec1ea944972f2e865:openapi_specs/openapi3.yml:jwt:181"
+ }
+]
