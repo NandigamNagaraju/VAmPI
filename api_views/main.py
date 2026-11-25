@@ -2,6 +2,8 @@ from flask import Response
 
 from models.user_model import *
 from app import vuln
+#fake aws key added to see if pipeline detects
+AWS_ACCESS_KEY_ID = "AKIAJ5Q7XK2N4VBM3TRD"
 
 def populate_db():
     db.drop_all()
