@@ -16,10 +16,10 @@ jobs:
         with: { python-version: "3.11" }
       - run: pip install bandit
       - name: Bandit - WARN on medium+ (report only)
-        run: bandit -r . -x ./.venv,./tests,./docs -ll -f json -o bandit.json || true
+        run: bandit -r . -x ./.venv,./tests,./docs -ll -f json -o bandit.json || true 
       - name: Bandit - FAIL on HIGH severity
         run: bandit -r . -x ./.venv,./tests,./docs -lll
-      - uses: actions/upload-artifact@v4
+      - uses:  actions/upload-artifact@v4
         if: always()
         with: { name: bandit-report, path: bandit.json }
 
@@ -41,19 +41,19 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Install gitleaks
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar -xz gitleaks
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar -xz gitleaks   
       - name: Gitleaks - FAIL on any secret
         run: ./gitleaks detect --source . --redact --report-format json --report-path gitleaks.json
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: gitleaks-report, path: gitleaks.json }
+        with: { name: gitleaks-report, path:  gitleaks.json }
 
   custom-security-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+-uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
+        with:  { python-version: "3.11" }
       - run: pip install -r requirements.txt pytest
       - name: Business-logic / authorisation tests (hardened mode)
         run: python -m pytest tests -q
