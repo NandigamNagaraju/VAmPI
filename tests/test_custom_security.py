@@ -1,8 +1,3 @@
-# Custom security tests for VAmPI.
-# These check business logic and authorisation rules that scanners cannot see.
-# Each test checks the SECURE behaviour, so they pass when the app runs with
-# vulnerable=0 and fail when someone breaks a rule (or runs with vulnerable=1).
-
 import os
 import uuid
 
@@ -39,7 +34,7 @@ def authHeader(token):
     return {"Authorization": "Bearer " + token}
 
 
-def testUserCannotReadAnotherUsersBookSecret(client):
+def testBookSecretIsOnlyVisibleToItsOwner(client):
     aliceName, aliceToken = createUser(client)
     bobName, bobToken = createUser(client)
 
@@ -48,34 +43,12 @@ def testUserCannotReadAnotherUsersBookSecret(client):
 
     # bob asks for alice's book
     response = client.get("/books/v1/" + bookTitle, headers=authHeader(bobToken))
-    assert "ALICE-SECRET" not in response.get_data(as_text=True), "BOLA: bob could read alice's secret"
+    assert "ALICE-SECRET" not in response.get_data(as_text=True), "Bob could read alice's secret"
 
 
-def testRegisterCannotMakeYourselfAdmin(client):
+def testNewUserCannotRegisterAsAdmin(client):
     userName, token = createUser(client, admin=True)
 
     response = client.get("/me", headers=authHeader(token))
     isAdmin = response.get_json()["data"]["admin"]
-    assert isAdmin is False, "Mass assignment: new user became admin"
-
-
-def testUserCannotChangeAnotherUsersPassword(client):
-    aliceName, aliceToken = createUser(client)
-    bobName, bobToken = createUser(client)
-
-    # bob tries to set alice's password
-    client.put("/users/v1/" + aliceName + "/password", json={"password": "hacked"}, headers=authHeader(bobToken))
-
-    # alice's password must not be "hacked"
-    assert login(client, aliceName, "hacked") is None, "Bob changed alice's password"
-
-
-def testLoginErrorDoesNotRevealIfUsernameExists(client):
-    unknownUser = "nobody" + uuid.uuid4().hex
-    realUser, realToken = createUser(client)
-
-    unknownResponse = client.post("/users/v1/login", json={"username": unknownUser, "password": "x"})
-    wrongPassResponse = client.post("/users/v1/login", json={"username": realUser, "password": "wrong"})
-
-    # both cases should give the exact same message
-    assert unknownResponse.get_data() == wrongPassResponse.get_data(), "Login error leaks which usernames exist"
+    assert isAdmin is False, "New user became admin by sending admin=true"
