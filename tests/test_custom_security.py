@@ -1,7 +1,6 @@
 import os
 import uuid
 
-# run the app in secure mode unless told otherwise
 os.environ.setdefault("vulnerable", "0")
 
 import pytest
@@ -35,15 +34,14 @@ def authHeader(token):
 
 
 def testBookSecretIsOnlyVisibleToItsOwner(client):
-    aliceName, aliceToken = createUser(client)
-    bobName, bobToken = createUser(client)
+    userAName, userAToken = createUser(client)
+    userBName, userBToken = createUser(client)
 
     bookTitle = "book" + uuid.uuid4().hex[:6]
-    client.post("/books/v1", json={"book_title": bookTitle, "secret": "ALICE-SECRET"}, headers=authHeader(aliceToken))
+    client.post("/books/v1", json={"book_title": bookTitle, "secret": "USER-A-SECRET"}, headers=authHeader(userAToken))
 
-    # bob asks for alice's book
-    response = client.get("/books/v1/" + bookTitle, headers=authHeader(bobToken))
-    assert "ALICE-SECRET" not in response.get_data(as_text=True), "Bob could read alice's secret"
+    response = client.get("/books/v1/" + bookTitle, headers=authHeader(userBToken))
+    assert "USER-A-SECRET" not in response.get_data(as_text=True), "User B can  read user A's secret"
 
 
 def testNewUserCannotRegisterAsAdmin(client):
